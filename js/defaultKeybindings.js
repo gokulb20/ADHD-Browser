@@ -285,6 +285,46 @@ const defaultKeybindings = {
         })
       }
     })
+
+    // Toggle trail sidebar (Cmd+\ or Cmd+B)
+    keybindings.defineShortcut({ keys: 'mod+\\' }, function () {
+      browserUI.toggleTrailSidebar()
+    })
+
+    keybindings.defineShortcut('toggleTrailSidebar', function () {
+      browserUI.toggleTrailSidebar()
+    })
+
+    // Trail management shortcuts
+    keybindings.defineShortcut('collapseCurrentTrail', function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.collapseCurrentTrail()
+    })
+
+    keybindings.defineShortcut({ keys: 'mod+[' }, function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.collapseCurrentTrail()
+    })
+
+    keybindings.defineShortcut('expandCurrentTrail', function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.expandCurrentTrail()
+    })
+
+    keybindings.defineShortcut({ keys: 'mod+]' }, function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.expandCurrentTrail()
+    })
+
+    keybindings.defineShortcut('renameCurrentTrail', function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.renameCurrentTrail()
+    })
+
+    keybindings.defineShortcut({ keys: 'mod+shift+r' }, function () {
+      const trailSidebar = require('trailSidebar/trailSidebar.js')
+      trailSidebar.renameCurrentTrail()
+    })
   }
 }
 

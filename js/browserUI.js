@@ -10,6 +10,7 @@ var focusMode = require('focusMode.js')
 var tabBar = require('navbar/tabBar.js')
 var tabEditor = require('navbar/tabEditor.js')
 var searchbar = require('searchbar/searchbar.js')
+var trailSidebar = require('trailSidebar/trailSidebar.js')
 
 /* creates a new task */
 
@@ -237,21 +238,56 @@ tasks.on('tab-updated', function (id, key) {
 })
 
 webviews.bindEvent('did-create-popup', function (tabId, popupId, initialURL) {
+  // Get parent tab info for tree structure
+  var parentTab = tabs.get(tabId)
+  var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+  
   var popupTab = tabs.add({
     // in most cases, initialURL will be overwritten once the popup loads, but if the URL is a downloaded file, it will remain the same
     url: initialURL,
-    private: tabs.get(tabId).private
+    private: tabs.get(tabId).private,
+    // Trail tree: popup is a child of the originating tab
+    parentId: tabId,
+    depth: parentDepth + 1
   })
+  
+  // Update parent's childIds
+  if (parentTab) {
+    var parentIndex = tabs.getIndex(tabId)
+    if (parentIndex >= 0) {
+      var childIds = tabs.tabs[parentIndex].childIds || []
+      childIds.push(popupTab)
+      tabs.tabs[parentIndex].childIds = childIds
+    }
+  }
+  
   tabBar.addTab(popupTab)
   webviews.add(popupTab, popupId)
   switchToTab(popupTab)
 })
 
 webviews.bindEvent('new-tab', function (tabId, url, openInForeground) {
+  // Get parent tab info for tree structure
+  var parentTab = tabs.get(tabId)
+  var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+  
   var newTab = tabs.add({
     url: url,
-    private: tabs.get(tabId).private // inherit private status from the current tab
+    private: tabs.get(tabId).private, // inherit private status from the current tab
+    // Trail tree: new tab is a child of the originating tab
+    parentId: tabId,
+    depth: parentDepth + 1
   })
+
+  // Update parent's childIds
+  if (parentTab) {
+    var parentIndex = tabs.getIndex(tabId)
+    if (parentIndex >= 0) {
+      var childIds = tabs.tabs[parentIndex].childIds || []
+      childIds.push(newTab)
+      tabs.tabs[parentIndex].childIds = childIds
+    }
+  }
 
   addTab(newTab, {
     enterEditMode: false,
@@ -300,6 +336,9 @@ tabBar.events.on('tab-closed', function (id) {
   closeTab(id)
 })
 
+// Initialize trail sidebar
+trailSidebar.initialize()
+
 module.exports = {
   addTask,
   addTab,
@@ -310,5 +349,6 @@ module.exports = {
   switchToTask,
   switchToTab,
   moveTabLeft,
-  moveTabRight
+  moveTabRight,
+  toggleTrailSidebar: () => trailSidebar.toggle()
 }
