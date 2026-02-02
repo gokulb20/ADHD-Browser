@@ -86,7 +86,24 @@ const webviewMenu = {
         linkActions.push({
           label: l('openInNewTab'),
           click: function () {
-            browserUI.addTab(tabs.add({ url: link }), { enterEditMode: false, openInBackground: openInBackground })
+            var parentId = tabs.getSelected()
+            var parentTab = tabs.get(parentId)
+            var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+            var newTabId = tabs.add({ 
+              url: link,
+              parentId: parentId,
+              depth: parentDepth + 1
+            })
+            // Update parent's childIds
+            if (parentTab) {
+              var parentIndex = tabs.getIndex(parentId)
+              if (parentIndex >= 0) {
+                var childIds = tabs.tabs[parentIndex].childIds || []
+                childIds.push(newTabId)
+                tabs.tabs[parentIndex].childIds = childIds
+              }
+            }
+            browserUI.addTab(newTabId, { enterEditMode: false, openInBackground: openInBackground })
           }
         })
       }
@@ -94,7 +111,25 @@ const webviewMenu = {
       linkActions.push({
         label: l('openInNewPrivateTab'),
         click: function () {
-          browserUI.addTab(tabs.add({ url: link, private: true }), { enterEditMode: false, openInBackground: openInBackground })
+          var parentId = tabs.getSelected()
+          var parentTab = tabs.get(parentId)
+          var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+          var newTabId = tabs.add({ 
+            url: link, 
+            private: true,
+            parentId: parentId,
+            depth: parentDepth + 1
+          })
+          // Update parent's childIds
+          if (parentTab) {
+            var parentIndex = tabs.getIndex(parentId)
+            if (parentIndex >= 0) {
+              var childIds = tabs.tabs[parentIndex].childIds || []
+              childIds.push(newTabId)
+              tabs.tabs[parentIndex].childIds = childIds
+            }
+          }
+          browserUI.addTab(newTabId, { enterEditMode: false, openInBackground: openInBackground })
         }
       })
 
@@ -132,7 +167,24 @@ const webviewMenu = {
         imageActions.push({
           label: l('openImageInNewTab'),
           click: function () {
-            browserUI.addTab(tabs.add({ url: mediaURL }), { enterEditMode: false, openInBackground: openInBackground })
+            var parentId = tabs.getSelected()
+            var parentTab = tabs.get(parentId)
+            var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+            var newTabId = tabs.add({ 
+              url: mediaURL,
+              parentId: parentId,
+              depth: parentDepth + 1
+            })
+            // Update parent's childIds
+            if (parentTab) {
+              var parentIndex = tabs.getIndex(parentId)
+              if (parentIndex >= 0) {
+                var childIds = tabs.tabs[parentIndex].childIds || []
+                childIds.push(newTabId)
+                tabs.tabs[parentIndex].childIds = childIds
+              }
+            }
+            browserUI.addTab(newTabId, { enterEditMode: false, openInBackground: openInBackground })
           }
         })
       }
@@ -140,7 +192,25 @@ const webviewMenu = {
       imageActions.push({
         label: l('openImageInNewPrivateTab'),
         click: function () {
-          browserUI.addTab(tabs.add({ url: mediaURL, private: true }), { enterEditMode: false, openInBackground: openInBackground })
+          var parentId = tabs.getSelected()
+          var parentTab = tabs.get(parentId)
+          var parentDepth = parentTab ? (parentTab.depth || 0) : 0
+          var newTabId = tabs.add({ 
+            url: mediaURL, 
+            private: true,
+            parentId: parentId,
+            depth: parentDepth + 1
+          })
+          // Update parent's childIds
+          if (parentTab) {
+            var parentIndex = tabs.getIndex(parentId)
+            if (parentIndex >= 0) {
+              var childIds = tabs.tabs[parentIndex].childIds || []
+              childIds.push(newTabId)
+              tabs.tabs[parentIndex].childIds = childIds
+            }
+          }
+          browserUI.addTab(newTabId, { enterEditMode: false, openInBackground: openInBackground })
         }
       })
 
@@ -163,10 +233,24 @@ const webviewMenu = {
         {
           label: l('searchWith').replace('%s', searchEngine.getCurrent().name),
           click: function () {
+            var parentId = tabs.getSelected()
+            var parentTab = tabs.get(parentId)
+            var parentDepth = parentTab ? (parentTab.depth || 0) : 0
             var newTab = tabs.add({
               url: searchEngine.getCurrent().searchURL.replace('%s', encodeURIComponent(selection)),
-              private: currentTab.private
+              private: currentTab.private,
+              parentId: parentId,
+              depth: parentDepth + 1
             })
+            // Update parent's childIds
+            if (parentTab) {
+              var parentIndex = tabs.getIndex(parentId)
+              if (parentIndex >= 0) {
+                var childIds = tabs.tabs[parentIndex].childIds || []
+                childIds.push(newTab)
+                tabs.tabs[parentIndex].childIds = childIds
+              }
+            }
             browserUI.addTab(newTab, {
               enterEditMode: false,
               openInBackground: false
